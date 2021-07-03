@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+  <title>Document</title>
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="http://js.arcgis.com/3.9/js/esri/css/esri.css">
+  <style>
+    #map {
+      height: 100%;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>世界信息查询及人口可视化</h1>
+    <div class="showTime">当前时间：2020年3月17-0时54分14秒</div>
+    <script>
+      var t = null;
+      t = setTimeout(time, 1000); //開始运行
+      function time() {
+        clearTimeout(t); //清除定时器
+        dt = new Date();
+        var y = dt.getFullYear();
+        var mt = dt.getMonth() + 1;
+        var day = dt.getDate();
+        var h = dt.getHours(); //获取时
+        var m = dt.getMinutes(); //获取分
+        var s = dt.getSeconds(); //获取秒
+        document.querySelector(".showTime").innerHTML =
+          "当前时间：" +
+          y +
+          "年" +
+          mt +
+          "月" +
+          day +
+          "-" +
+          h +
+          "时" +
+          m +
+          "分" +
+          s +
+          "秒";
+        t = setTimeout(time, 1000); //设定定时器，循环运行
+      }
+    </script>
+  </header>
+  <section class="mainbox">
+    <div class="column">
+      <div class="panel bar">
+        <h2>
+          诺贝尔奖获强国（获奖人数） <a href="javascript:;">2019</a>
+
+        </h2>
+        <div class="chart"></div>
+        <div class="panel-footer"></div>
+      </div>
+      <div class="panel line">
+        <h2>12年中美gdp（万亿）对比</h2>
+        <div class="chart"></div>
+        <div class="panel-footer"></div>
+      </div>
+      <div class="panel pie">
+        <h2>2021—中国人口年龄比例</h2>
+        <div class="chart"></div>
+        <div class="panel-footer"></div>
+      </div>
+    </div>
+    <div class="column">
+      <div id="map"></div>
+      <div id="info">
+        <div id="legend"></div>
+      </div>
+
+
+    </div>
+
+    </div>
+
+    <div class="column">
+      <div class="panel bar1">
+        <h2>五常人口密度图</h2>
+        <div class="chart"></div>
+        <div class="panel-footer"></div>
+      </div>
+      <div class="panel line1">
+        <h2>中美月降水量对比</h2>
+        <div class="chart"></div>
+        <div class="panel-footer"></div>
+      </div>
+      <div class="panel pie1">
+        <h2>2021中国经济强省gdp占比</h2>
+        <div class="chart"></div>
+        <div class="panel-footer"></div>
+      </div>
+    </div>
+  </section>
+  <script src="js/flexible.js"></script>
+  <script src="js/jquery.js"></script>
+  <script src="js/echarts.min.js"></script>
+  <script src="js/index.js"></script>
+  <script src="http://js.arcgis.com/3.9/"></script>
+  <script>
+    var map;
+    require(["esri/map", "esri/layers/ArcGISTiledMapServiceLayer", "esri/layers/FeatureLayer",
+      "esri/InfoTemplate", "esri/renderers/ClassBreaksRenderer", "esri/symbols/SimpleFillSymbol", "esri/dijit/Legend",
+      "esri/Color", "dojo/domReady!"
+    ], function (Map, ArcGISTiledMapServiceLayer, FeatureLayer,
+      InfoTemplate, ClassBreaksRenderer, SimpleFillSymbol, Legend, Color
+    ) {
+      map = new Map("map", { zoom: 2, center: [110, 28] });
+
+      var baseMapUrl = "http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer";
+      var baseMap = new ArcGISTiledMapServiceLayer(baseMapUrl);
+      map.addLayer(baseMap);
+
+      var layerUrl = "http://services.arcgis.com/BG6nSlhZSAWtExvp/ArcGIS/rest/services/Demographics_World_Simp/FeatureServer/0";
+      var layer = new FeatureLayer(layerUrl, {
+        infoTemplate: new InfoTemplate("${CNTRY_NAME}", "${*}"),
+        mode: FeatureLayer.MODE_ONDEMAND,
+        outFields: ["*"]
+      });
+
+      var symbol = new SimpleFillSymbol();
+      symbol.setColor(new Color([150, 150, 150, 0.5]));
+
+      var renderer = new ClassBreaksRenderer(symbol, "POP2007");
+      renderer.addBreak(0, 10000000, new SimpleFillSymbol().setColor(new Color([56, 168, 0, 0.5])));
+      renderer.addBreak(10000000, 50000000, new SimpleFillSymbol().setColor(new Color([139, 209, 0, 0.5])));
+      renderer.addBreak(50000000, 100000000, new SimpleFillSymbol().setColor(new Color([255, 255, 0, 0.5])));
+      renderer.addBreak(100000000, 500000000, new SimpleFillSymbol().setColor(new Color([255, 128, 0, 0.5])));
+      renderer.addBreak(500000000, Infinity, new SimpleFillSymbol().setColor(new Color([255, 0, 0, 0.5])));
+
+      layer.setRenderer(renderer);
+      map.addLayer(layer);
+
+
+
+    });
+  </script>
+
+
+</body>
+
+</html>
